@@ -3,7 +3,6 @@
 
   const STORAGE_KEYS = {
     stats: "chouIndianMath.stats.v1",
-    mistakes: "chouIndianMath.mistakes.v1",
     ordered: "chouIndianMath.ordered.v1"
   };
 
@@ -88,16 +87,6 @@
       skill: "基準数",
       predicate: (x, y) => tens(x) === tens(y),
       strategy: "sameTensBase"
-    },
-    {
-      id: "review",
-      name: "苦手問題",
-      icon: "RE",
-      description: "これまでに間違えた組み合わせだけを再出題します。",
-      skill: "復習",
-      predicate: () => false,
-      strategy: "recommended",
-      dynamic: true
     }
   ];
 
@@ -240,8 +229,6 @@
     quizModal: document.getElementById("quiz-modal"),
     quizDialog: document.querySelector(".quiz-dialog"),
     quizHeader: document.querySelector(".quiz-header"),
-    helpModal: document.getElementById("help-modal"),
-    openHelp: document.getElementById("open-help"),
     quizModeLabel: document.getElementById("quiz-mode-label"),
     quizProgress: document.getElementById("quiz-progress"),
     operandX: document.getElementById("operand-x"),
@@ -274,7 +261,6 @@
     lessonCheck: { pairs: [], index: 0, correct: 0, answered: false },
     ordered: loadBoolean(STORAGE_KEYS.ordered, true),
     allStats: loadStats(),
-    mistakes: loadMistakes(),
     pool: [],
     index: 0,
     current: null,
@@ -293,8 +279,6 @@
   function ones(n) { return n % 10; }
   function formatNumber(n) { return new Intl.NumberFormat("ja-JP").format(n); }
   function pad2(n) { return String(n).padStart(2, "0"); }
-  function canonicalKey(x, y) { return x <= y ? `${x}-${y}` : `${y}-${x}`; }
-
   function loadBoolean(key, fallback) {
     const raw = localStorage.getItem(key);
     return raw === null ? fallback : raw === "true";
@@ -312,19 +296,8 @@
     }
   }
 
-  function loadMistakes() {
-    try {
-      const parsed = JSON.parse(localStorage.getItem(STORAGE_KEYS.mistakes));
-      if (!Array.isArray(parsed)) return new Set();
-      return new Set(parsed.filter((item) => /^\d{2}-\d{2}$/.test(item)));
-    } catch {
-      return new Set();
-    }
-  }
-
   function saveProgress() {
     localStorage.setItem(STORAGE_KEYS.stats, JSON.stringify(state.allStats));
-    localStorage.setItem(STORAGE_KEYS.mistakes, JSON.stringify([...state.mistakes]));
     localStorage.setItem(STORAGE_KEYS.ordered, String(state.ordered));
   }
 
@@ -345,12 +318,6 @@
 
   function buildPool(modeId) {
     const mode = getMode(modeId);
-    if (mode.id === "review") {
-      return [...state.mistakes].map((key) => {
-        const [x, y] = key.split("-").map(Number);
-        return { x, y };
-      });
-    }
     return buildBasePairs().filter(({ x, y }) => mode.predicate(x, y));
   }
 
@@ -498,11 +465,6 @@
     check.answered = true;
     if (isCorrect) {
       check.correct += 1;
-    } else {
-      state.mistakes.add(canonicalKey(pair.x, pair.y));
-      saveProgress();
-      renderAllStats();
-      renderModes();
     }
     elements.lessonCheckInput.disabled = true;
     elements.lessonCheckSubmitRow.hidden = true;
@@ -565,7 +527,7 @@
 
   function closeModal(modal) {
     modal.hidden = true;
-    if (elements.quizModal.hidden && elements.helpModal.hidden && elements.studyModal.hidden) {
+    if (elements.quizModal.hidden && elements.studyModal.hidden) {
       document.body.classList.remove("modal-open");
     }
   }
@@ -672,7 +634,6 @@
       state.session.bestStreak = Math.max(state.session.bestStreak, state.session.streak);
     } else {
       state.session.streak = 0;
-      state.mistakes.add(canonicalKey(state.current.x, state.current.y));
     }
 
     saveProgress();
@@ -685,7 +646,7 @@
     if (isCorrect) {
       elements.feedback.innerHTML = `<strong>正解</strong><span>${(elapsedMs / 1000).toFixed(1)}秒・連続${state.session.streak}問正解。下の図で計算の流れを確認できます。</span>`;
     } else if (skipped) {
-      elements.feedback.innerHTML = `<strong>正解は ${formatNumber(correctAnswer)}</strong><span>大丈夫。この問題は苦手問題に追加しました。下の図で数字の出どころを確認しましょう。</span>`;
+      elements.feedback.innerHTML = `<strong>正解は ${formatNumber(correctAnswer)}</strong><span>大丈夫。下の図で数字の出どころを確認しましょう。</span>`;
     } else {
       elements.feedback.innerHTML = `<strong>不正解　正解は ${formatNumber(correctAnswer)}</strong><span>下の図で数字の出どころを確認しましょう。</span>`;
     }
@@ -1103,7 +1064,6 @@
   elements.explanationButton.addEventListener("click", toggleExplanation);
   elements.restartButton.addEventListener("click", startSession);
   elements.openStudy.addEventListener("click", () => elements.studySection.scrollIntoView({ behavior: "smooth", block: "start" }));
-  elements.openHelp.addEventListener("click", () => openModal(elements.helpModal));
   elements.lessonPrev.addEventListener("click", () => moveLesson(-1));
   elements.lessonNext.addEventListener("click", () => moveLesson(1));
   elements.lessonPractice.addEventListener("click", practiceLesson);
@@ -1116,29 +1076,21 @@
     button.addEventListener("click", closeQuiz);
   });
 
-  document.querySelectorAll("[data-close-help]").forEach((button) => {
-    button.addEventListener("click", () => closeModal(elements.helpModal));
-  });
-
   document.querySelectorAll("[data-close-study]").forEach((button) => {
     button.addEventListener("click", () => closeModal(elements.studyModal));
   });
 
   elements.resetStats.addEventListener("click", () => {
-    const confirmed = window.confirm("取り組んだ問題数と苦手問題をすべて削除しますか？");
+    const confirmed = window.confirm("取り組んだ問題数を0に戻しますか？");
     if (!confirmed) return;
     state.allStats = { attempts: 0 };
-    state.mistakes = new Set();
     saveProgress();
     renderAllStats();
-    if (state.selectedModeId === "review") state.selectedModeId = "random";
-    renderModes();
   });
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
-      if (!elements.helpModal.hidden) closeModal(elements.helpModal);
-      else if (!elements.studyModal.hidden) closeModal(elements.studyModal);
+      if (!elements.studyModal.hidden) closeModal(elements.studyModal);
       else if (!elements.quizModal.hidden) closeQuiz();
       return;
     }
@@ -1148,7 +1100,7 @@
       if (!isTyping && event.key === "ArrowRight") moveLesson(1);
       return;
     }
-    if (elements.quizModal.hidden || !elements.helpModal.hidden) return;
+    if (elements.quizModal.hidden) return;
     if ((event.key === "e" || event.key === "E") && state.answered) {
       event.preventDefault();
       toggleExplanation();
