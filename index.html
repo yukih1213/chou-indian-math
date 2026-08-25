@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#111827" />
+  <meta name="description" content="10×10から99×99までを、万能クロス法とショートカット別に学んで練習できる超インド式計算アプリ" />
+  <title>超インド式計算</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="トップへ">
+        <span class="brand-mark" aria-hidden="true">×</span>
+        <span>
+          <strong>超インド式計算</strong>
+          <small>MENTAL MATH TRAINER</small>
+        </span>
+      </a>
+      <div class="topbar-actions">
+        <button id="open-study" class="ghost-button" type="button">勉強モード</button>
+        <button id="open-help" class="ghost-button" type="button">使い方</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">10 × 10 — 99 × 99</p>
+          <h1>二桁かける二桁を、<br /><span>型で速くする。</span></h1>
+          <p class="hero-description">
+            8,100通りを一巡できる完全ランダム出題と、条件別ショートカット練習。
+            回答後に、その問題に最適な解法を一手ずつ表示します。
+          </p>
+        </div>
+
+        <div class="stats-card" aria-label="学習実績">
+          <div class="stats-heading">
+            <span>累計トレーニング</span>
+            <button id="reset-stats" class="text-button" type="button">リセット</button>
+          </div>
+          <div class="stats-grid">
+            <div><strong id="all-attempts">0</strong><span>回答</span></div>
+            <div><strong id="all-accuracy">—</strong><span>正答率</span></div>
+            <div><strong id="all-average">—</strong><span>平均秒</span></div>
+            <div><strong id="mistake-count">0</strong><span>苦手問題</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="study" class="study-panel" aria-labelledby="study-heading">
+        <div class="study-heading">
+          <div>
+            <p class="eyebrow">STUDY MODE</p>
+            <h2 id="study-heading">まず、解き方を覚える</h2>
+            <p>万能法から条件別の速い型まで、例題を一手ずつ追って学べます。</p>
+          </div>
+          <div class="study-route" aria-label="おすすめの学び方">
+            <span>おすすめ</span>
+            <strong>万能法 → 気になる型 → 練習</strong>
+          </div>
+        </div>
+        <div id="lesson-grid" class="lesson-grid" role="group" aria-label="計算法のレッスン"></div>
+      </section>
+
+      <section id="training" class="control-panel" aria-labelledby="mode-heading">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">TRAINING MODE</p>
+            <h2 id="mode-heading">練習モードを選ぶ</h2>
+          </div>
+          <label class="switch-row">
+            <span>
+              <strong>順序も別問題にする</strong>
+              <small>23×47 と 47×23 を区別</small>
+            </span>
+            <input id="ordered-toggle" type="checkbox" checked />
+            <span class="switch" aria-hidden="true"></span>
+          </label>
+        </div>
+
+        <div id="mode-grid" class="mode-grid" role="radiogroup" aria-label="練習モード"></div>
+
+        <div class="start-bar">
+          <div>
+            <span>選択中</span>
+            <strong id="selected-mode-name">完全ランダム</strong>
+            <small id="selected-mode-count">8,100問</small>
+          </div>
+          <button id="start-button" class="primary-button" type="button">
+            トレーニング開始
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="method-overview" aria-labelledby="method-heading">
+        <div class="section-heading compact">
+          <div>
+            <p class="eyebrow">CORE METHOD</p>
+            <h2 id="method-heading">万能クロス法の基本</h2>
+          </div>
+        </div>
+        <div class="formula-card">
+          <div class="formula-expression">
+            <span>(10a + b)(10c + d)</span>
+            <strong>= 100ac + 10(ad + bc) + bd</strong>
+          </div>
+          <ol class="method-steps">
+            <li><span>1</span><div><strong>右縦</strong><small>b × d。1の位を確定し、残りを繰り上げる。</small></div></li>
+            <li><span>2</span><div><strong>クロス</strong><small>a × d + b × c + 繰り上がり。10の位を確定。</small></div></li>
+            <li><span>3</span><div><strong>左縦</strong><small>a × c + 繰り上がり。残りの左側を完成。</small></div></li>
+          </ol>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>超インド式計算 — 学習データはこの端末内だけに保存されます。</span>
+    </footer>
+  </div>
+
+  <div id="study-modal" class="modal" hidden>
+    <div class="modal-backdrop" data-close-study></div>
+    <section class="study-dialog" role="dialog" aria-modal="true" aria-labelledby="lesson-title">
+      <header class="study-dialog-header">
+        <div>
+          <span id="lesson-number" class="pill">LESSON 1</span>
+          <strong id="lesson-progress">1 / 8</strong>
+        </div>
+        <button class="icon-button" type="button" aria-label="勉強モードを閉じる" data-close-study>×</button>
+      </header>
+      <div class="lesson-body">
+        <p id="lesson-kicker" class="eyebrow">まず覚える型</p>
+        <h2 id="lesson-title">万能クロス法</h2>
+        <p id="lesson-summary" class="lesson-summary"></p>
+
+        <div class="lesson-why-grid">
+          <div>
+            <span>使える条件</span>
+            <strong id="lesson-condition"></strong>
+          </div>
+          <div>
+            <span>なぜ成り立つ？</span>
+            <strong id="lesson-reason"></strong>
+          </div>
+        </div>
+
+        <div class="worked-heading">
+          <span>WORKED EXAMPLE</span>
+          <strong id="lesson-example"></strong>
+        </div>
+        <article id="lesson-explanation" class="explanation-panel lesson-explanation"></article>
+
+        <section class="lesson-check" aria-labelledby="lesson-check-title">
+          <div class="lesson-check-heading">
+            <div>
+              <span>QUICK CHECK</span>
+              <h3 id="lesson-check-title">仕上げの3問チャレンジ</h3>
+            </div>
+            <strong id="lesson-check-progress">1 / 3</strong>
+          </div>
+
+          <div id="lesson-check-question">
+            <p class="lesson-check-problem"><span id="lesson-check-x">43</span><span>×</span><span id="lesson-check-y">47</span></p>
+            <form id="lesson-check-form" class="lesson-check-form" novalidate>
+              <label for="lesson-check-input">答え</label>
+              <input id="lesson-check-input" type="text" inputmode="numeric" autocomplete="off" pattern="[0-9]*" placeholder="数字を入力" />
+              <div id="lesson-check-submit-row" class="answer-submit-row compact">
+                <button id="lesson-check-dont-know" class="secondary-button" type="button">わからない</button>
+                <button class="primary-button" type="submit">答える</button>
+              </div>
+            </form>
+            <div id="lesson-check-feedback" class="feedback" aria-live="polite" hidden></div>
+            <button id="lesson-check-next" class="primary-button full lesson-check-next" type="button" hidden>次の問題 →</button>
+          </div>
+
+          <div id="lesson-check-complete" class="lesson-check-complete" hidden>
+            <span aria-hidden="true">✓</span>
+            <strong id="lesson-check-score">3問中3問正解</strong>
+            <p id="lesson-check-message"></p>
+            <button id="lesson-check-retry" class="secondary-button" type="button">別の3問に挑戦</button>
+          </div>
+        </section>
+      </div>
+      <footer class="lesson-actions">
+        <button id="lesson-prev" class="secondary-button" type="button">← 前の型</button>
+        <button id="lesson-practice" class="primary-button" type="button">この型を練習する</button>
+        <button id="lesson-next" class="secondary-button" type="button">次の型 →</button>
+      </footer>
+    </section>
+  </div>
+
+  <div id="quiz-modal" class="modal" hidden>
+    <div class="modal-backdrop" data-close-modal></div>
+    <section class="quiz-dialog" role="dialog" aria-modal="true" aria-labelledby="quiz-title">
+      <header class="quiz-header">
+        <div>
+          <span id="quiz-mode-label" class="pill">完全ランダム</span>
+          <strong id="quiz-progress">1 / 8,100</strong>
+        </div>
+        <button class="icon-button" type="button" aria-label="トレーニングを閉じる" data-close-modal>×</button>
+      </header>
+
+      <div id="question-screen" class="question-screen">
+        <div class="timer" aria-label="経過時間">
+          <span class="timer-dot" aria-hidden="true"></span>
+          <strong id="timer-value">0.0</strong><small>秒</small>
+        </div>
+
+        <h2 id="quiz-title" class="question" aria-live="polite">
+          <span id="operand-x">37</span><span class="operator">×</span><span id="operand-y">64</span>
+        </h2>
+
+        <form id="answer-form" class="answer-form" novalidate>
+          <label for="answer-input">答え</label>
+          <input id="answer-input" type="text" inputmode="numeric" autocomplete="off" pattern="[0-9]*" placeholder="数字を入力" aria-describedby="input-hint" />
+          <small id="input-hint">Enterで回答できます</small>
+          <div id="answer-submit-row" class="answer-submit-row">
+            <button id="dont-know-button" class="secondary-button" type="button">わからない</button>
+            <button id="submit-answer" class="primary-button" type="submit">回答する</button>
+          </div>
+        </form>
+
+        <div id="feedback" class="feedback" aria-live="polite" hidden></div>
+
+        <div id="answered-actions" class="answered-actions" hidden>
+          <button id="explanation-button" class="secondary-button" type="button">解説を見る</button>
+          <button id="next-button" class="primary-button" type="button">次の問題 <span aria-hidden="true">→</span></button>
+        </div>
+
+        <article id="explanation-panel" class="explanation-panel" hidden></article>
+      </div>
+
+      <div id="summary-screen" class="summary-screen" hidden>
+        <span class="summary-icon" aria-hidden="true">✓</span>
+        <p class="eyebrow">SESSION COMPLETE</p>
+        <h2>このモードを一巡しました</h2>
+        <div class="summary-stats">
+          <div><strong id="summary-attempts">0</strong><span>回答</span></div>
+          <div><strong id="summary-accuracy">0%</strong><span>正答率</span></div>
+          <div><strong id="summary-average">0.0秒</strong><span>平均</span></div>
+          <div><strong id="summary-best-streak">0</strong><span>最大連続正解</span></div>
+        </div>
+        <div class="summary-actions">
+          <button id="restart-button" class="secondary-button" type="button">もう一巡する</button>
+          <button class="primary-button" type="button" data-close-modal>モード選択へ</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="help-modal" class="modal" hidden>
+    <div class="modal-backdrop" data-close-help></div>
+    <section class="help-dialog" role="dialog" aria-modal="true" aria-labelledby="help-title">
+      <header>
+        <div>
+          <p class="eyebrow">HOW TO USE</p>
+          <h2 id="help-title">使い方</h2>
+        </div>
+        <button class="icon-button" type="button" aria-label="使い方を閉じる" data-close-help>×</button>
+      </header>
+      <ol class="help-list">
+        <li><span>1</span><div><strong>勉強モードで型を理解</strong><p>万能法と7つの速い型を、条件・理由・例題の順で確認します。</p></div></li>
+        <li><span>2</span><div><strong>練習モードを選択</strong><p>完全ランダムは全範囲、その他は特定のショートカットだけを反復します。</p></div></li>
+        <li><span>3</span><div><strong>ポップアップで回答</strong><p>数字を入力してEnter。回答時間、正誤、連続正解数を記録します。</p></div></li>
+        <li><span>4</span><div><strong>解説で型を確認</strong><p>「解説を見る」で最短解法を表示。ショートカット問題には万能法の検算も付きます。</p></div></li>
+        <li><span>5</span><div><strong>苦手問題を復習</strong><p>間違えた組み合わせは端末内に保存され、「苦手問題」モードから再出題されます。</p></div></li>
+      </ol>
+      <p class="keyboard-tip"><kbd>Enter</kbd> 回答／次へ　<kbd>E</kbd> 解説　<kbd>Esc</kbd> 閉じる</p>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
