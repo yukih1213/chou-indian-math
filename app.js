@@ -265,9 +265,6 @@
     summaryAverage: document.getElementById("summary-average"),
     summaryBestStreak: document.getElementById("summary-best-streak"),
     allAttempts: document.getElementById("all-attempts"),
-    allAccuracy: document.getElementById("all-accuracy"),
-    allAverage: document.getElementById("all-average"),
-    mistakeCount: document.getElementById("mistake-count"),
     resetStats: document.getElementById("reset-stats")
   };
 
@@ -308,12 +305,10 @@
       const parsed = JSON.parse(localStorage.getItem(STORAGE_KEYS.stats));
       if (!parsed || typeof parsed !== "object") throw new Error("invalid");
       return {
-        attempts: Number(parsed.attempts) || 0,
-        correct: Number(parsed.correct) || 0,
-        totalMs: Number(parsed.totalMs) || 0
+        attempts: Number(parsed.attempts) || 0
       };
     } catch {
-      return { attempts: 0, correct: 0, totalMs: 0 };
+      return { attempts: 0 };
     }
   }
 
@@ -560,11 +555,7 @@
   }
 
   function renderAllStats() {
-    const { attempts, correct, totalMs } = state.allStats;
-    elements.allAttempts.textContent = formatNumber(attempts);
-    elements.allAccuracy.textContent = attempts ? `${Math.round((correct / attempts) * 100)}%` : "—";
-    elements.allAverage.textContent = attempts ? (totalMs / attempts / 1000).toFixed(1) : "—";
-    elements.mistakeCount.textContent = formatNumber(state.mistakes.size);
+    elements.allAttempts.textContent = formatNumber(state.allStats.attempts);
   }
 
   function openModal(modal) {
@@ -674,13 +665,11 @@
     state.session.attempts += 1;
     state.session.totalMs += elapsedMs;
     state.allStats.attempts += 1;
-    state.allStats.totalMs += elapsedMs;
 
     if (isCorrect) {
       state.session.correct += 1;
       state.session.streak += 1;
       state.session.bestStreak = Math.max(state.session.bestStreak, state.session.streak);
-      state.allStats.correct += 1;
     } else {
       state.session.streak = 0;
       state.mistakes.add(canonicalKey(state.current.x, state.current.y));
@@ -1136,9 +1125,9 @@
   });
 
   elements.resetStats.addEventListener("click", () => {
-    const confirmed = window.confirm("累計成績と苦手問題をすべて削除しますか？");
+    const confirmed = window.confirm("取り組んだ問題数と苦手問題をすべて削除しますか？");
     if (!confirmed) return;
-    state.allStats = { attempts: 0, correct: 0, totalMs: 0 };
+    state.allStats = { attempts: 0 };
     state.mistakes = new Set();
     saveProgress();
     renderAllStats();

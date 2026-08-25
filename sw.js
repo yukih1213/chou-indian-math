@@ -1,4 +1,4 @@
-const CACHE_NAME = "chou-indian-math-v7";
+const CACHE_NAME = "chou-indian-math-v8";
 const ASSETS = [
   "./",
   "./index.html",
