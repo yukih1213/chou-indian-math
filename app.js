@@ -192,6 +192,7 @@
   const elements = {
     lessonGrid: document.getElementById("lesson-grid"),
     openStudy: document.getElementById("open-study"),
+    openTraining: document.getElementById("open-training"),
     studySection: document.getElementById("study"),
     trainingSection: document.getElementById("training"),
     studyModal: document.getElementById("study-modal"),
@@ -1064,6 +1065,7 @@
   elements.explanationButton.addEventListener("click", toggleExplanation);
   elements.restartButton.addEventListener("click", startSession);
   elements.openStudy.addEventListener("click", () => elements.studySection.scrollIntoView({ behavior: "smooth", block: "start" }));
+  elements.openTraining.addEventListener("click", () => elements.trainingSection.scrollIntoView({ behavior: "smooth", block: "start" }));
   elements.lessonPrev.addEventListener("click", () => moveLesson(-1));
   elements.lessonNext.addEventListener("click", () => moveLesson(1));
   elements.lessonPractice.addEventListener("click", practiceLesson);
