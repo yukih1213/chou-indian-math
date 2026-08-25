@@ -1,9 +1,9 @@
-const CACHE_NAME = "chou-indian-math-v9";
+const CACHE_NAME = "chou-indian-math-v10";
 const ASSETS = [
   "./",
   "./index.html",
-  "./styles.css",
-  "./app.js",
+  "./styles.css?v=10",
+  "./app.js?v=10",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
   "./icons/icon-512.png"
